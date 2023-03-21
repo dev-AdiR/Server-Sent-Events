@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+  server:
+    build: Server
+    container_name: server
+    restart: always
+    ports:
+      - 9876:9876
+    links:
+      - db
+
+  client:
+    build: client
+    ports:
+      - 3000:3000
+    environment:
+      - host=server
+
+  db:
+    container_name: db
+    image: mongo
+    ports:
+      - '27017:27017'
+    # entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+volumes:
+  mongo: 
