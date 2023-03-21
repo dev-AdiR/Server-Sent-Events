@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="update-this"></div>
+    <input type="text" id="dummy-name" placeholder="Dummy Name" />
+    <button id="submit-button">Submit</button>
+
+    <ul id="list"></ul>
+  </body>
+
+  <script>
+    const callApi = () => {
+      let sse = new EventSource("http://localhost:9876/server-sent-events");
+      sse.onmessage = (response) => {
+        // document.getElementById("update-this").innerText = response.data;
+        console.log("Response", JSON.parse(response.data));
+      };
+    };
+
+    document.getElementById("submit-button").onclick = () => {
+      fetch("http://localhost:9876/create", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: document.getElementById("dummy-name").value,
+        }),
+      });
+    };
+    // callApi();
+
+    const getDataList = async () => {
+      fetch("http://localhost:9876/dummies")
+        .then((res) => res.json())
+        .then((res) => {
+          console.log("res", res.data);
+
+          var list = document.getElementById("list");
+
+          function addText(array) {
+            console.log("lhg hdsdds", array);
+            for (var i = 0; i < array.length; i++) {
+              var text = array[i].name;
+              var id = array[i]._id;
+              var listItem = document.createElement("li");
+              listItem.textContent = text;
+              listItem.id = id;
+              list.appendChild(listItem);
+            }
+          }
+
+          addText(res.data.map((e) => e));
+        });
+    };
+
+    getDataList();
+  </script>
+</html>
